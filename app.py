@@ -13,7 +13,7 @@ app.secret_key='some secret key'
 #Config MySQL
 app.config['MYSQL_HOST']='localhost'
 app.config['MYSQL_USER']='root'
-app.config['MYSQL_PASSWORD']='123456'
+app.config['MYSQL_PASSWORD']='alihamza000786'
 app.config['MYSQL_DB']='bloodbank'
 app.config['MYSQL_CURSORCLASS']='DictCursor'
 #init MySQL
@@ -43,7 +43,7 @@ def contact():
         #close connection
         cur.close()
         flash('Your request is successfully sent to the Blood Bank','success')
-        return redirect(url_for('index'))
+        return redirect(url_for('notifications'))
 
     return render_template('contact.html')
 
@@ -140,14 +140,14 @@ def logout():
 @is_logged_in
 def dashboard():
     cur = mysql.connection.cursor()
-    result = cur.callproc('BLOOD_DATA')
+    cur.callproc('BLOOD_DATA')
     details = cur.fetchall()
 
-    if result>0:
-        return render_template('dashboard.html',details=details)
+    if len(details) > 0:
+        return render_template('dashboard.html', details=details)
     else:
         msg = ' Blood Bank is Empty '
-        return render_template('dashboard.html',msg=msg)
+        return render_template('dashboard.html', msg=msg)
     #close connection
     cur.close()
 
@@ -160,15 +160,16 @@ def donate():
         sex = request.form["sex"]
         age = request.form["age"]
         weight = request.form["weight"]
-        address = request.form["address"]
+        bloodgroup=request.form["bloodgroup"]
         disease =  request.form["disease"]
+        address = request.form["address"]
         demail = request.form["demail"]
 
         #create a cursor
         cur = mysql.connection.cursor()
 
         #Inserting values into tables
-        cur.execute("INSERT INTO DONOR(DNAME,SEX,AGE,WEIGHT,ADDRESS,DISEASE,DEMAIL) VALUES(%s, %s, %s, %s, %s, %s, %s)",(dname , sex, age, weight, address, disease, demail))
+        cur.execute("INSERT INTO DONOR(DNAME,SEX,AGE,WEIGHT,DISEASE,ADDRESS,DEMAIL,BLOODGROUP) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)",(dname , sex, age, weight, disease, address, demail,bloodgroup))
         #Commit to DB
         mysql.connection.commit()
         #close connection
@@ -194,38 +195,56 @@ def donorlogs():
     cur.close()
 
 
-@app.route('/bloodform',methods=['GET','POST'])
+@app.route('/bloodform', methods=['GET', 'POST'])
 @is_logged_in
 def bloodform():
-    if request.method  == 'POST':
+    if request.method == 'POST':
         # Get Form Fields
         d_id = request.form["d_id"]
-        blood_group = request.form["blood_group"]
         packets = request.form["packets"]
 
-        #create a cursor
+        # Create a cursor
         cur = mysql.connection.cursor()
 
-        #Inserting values into tables
-        cur.execute("INSERT INTO BLOOD(D_ID,B_GROUP,PACKETS) VALUES(%s, %s, %s)",(d_id , blood_group, packets))
-        cur.execute("SELECT * FROM BLOODBANK")
-        records = cur.fetchall()
-        cur.execute("UPDATE BLOODBANK SET TOTAL_PACKETS = TOTAL_PACKETS+%s WHERE B_GROUP = %s",(packets,blood_group))
-        #Commit to DB
+        # Fetch the blood group for the given donor ID
+        cur.execute("SELECT bloodgroup FROM donor WHERE D_ID = %s", (d_id,))
+        rec = cur.fetchone()
+
+        if rec:
+            blood_group = rec['bloodgroup']  # Correctly extract the blood group from the dictionary
+        else:
+            flash('The Donor with this ID does not exist', 'danger')
+            return render_template('bloodform.html')
+
+        # Check if the blood group exists in BLOODBANK
+        cur.execute("SELECT * FROM BLOODBANK WHERE B_GROUP = %s", (blood_group,))
+        record = cur.fetchone()
+
+        if record:
+            # Update the total packets if the blood group exists
+            cur.execute("UPDATE BLOODBANK SET TOTAL_PACKETS = TOTAL_PACKETS + %s WHERE B_GROUP = %s", (packets, blood_group))
+        else:
+            # Insert a new record for the blood group if it doesn't exist
+            cur.execute("INSERT INTO BLOODBANK(B_GROUP, TOTAL_PACKETS) VALUES(%s, %s)", (blood_group, packets))
+
+        # Commit to DB
         mysql.connection.commit()
-        #close connection
+
+        # Close connection
         cur.close()
-        flash('Success! Donor Blood details Added.','success')
+
+        flash('Success! Donor Blood details Added.', 'success')
         return redirect(url_for('dashboard'))
 
     return render_template('bloodform.html')
+
 
 
 @app.route('/notifications')
 @is_logged_in
 def notifications():
     cur = mysql.connection.cursor()
-    result = cur.execute("SELECT * FROM CONTACT")
+    result = cur.execute("SELECT * FROM CONTACT WHERE STATUS=%s", ('fasle',))
     requests = cur.fetchall()
 
     if result>0:
@@ -236,31 +255,81 @@ def notifications():
     #close connection
     cur.close()
 
-@app.route('/notifications/accept')
-@is_logged_in
-def accept():
-    # cur = mysql.connection.cursor()
-    # cur.execute("SELECT N_PACKETS FROM NOTIFICATIONS")
-    # packets = cur.fetchone()
-    # packet = (x[0] for x in packets)
-    # cur.execute("SELECT NB_GROUP FROM NOTIFICATIONS")
-    # groups = cur.fetchone()
-    # group = (y[0] for y in groups)
-    #
-    # # for row in allnotifications:
-    # #      group = row[1]
-    # #      packet = row[2]
-    # cur.execute("UPDATE BLOODBANK SET TOTAL_PACKETS = TOTAL_PACKETS-%s WHERE B_GROUP = %s",(packet[-1],group[-1]))
-    # result = "ACCEPTED"
-    # cur.execute("INSERT INTO NOTIFICATIONS(RESULT) VALUES(%s)",(result))
-    flash('Request Accepted','success')
-    return redirect(url_for('notifications'))
+@app.route('/notifications/accept/<int:contact_id>', methods=['GET'])
+def accept_request(contact_id):
+    cur = mysql.connection.cursor()
 
-@app.route('/notifications/decline')
+    # Retrieve the request details
+    cur.execute("SELECT B_GROUP, C_PACKETS FROM contact WHERE CONTACT_ID = %s", (contact_id,))
+    request_details = cur.fetchone()
+    print(f"Fetched request details: {request_details}")
+
+    if request_details:
+        blood_group=request_details['B_GROUP']
+        requested_packets = request_details['C_PACKETS']
+
+        # Retrieve the current packets in blood bank for the blood group
+        cur.execute("SELECT TOTAL_PACKETS FROM BLOODBANK WHERE B_GROUP = %s", (blood_group,))
+        bloodbank_details = cur.fetchone()
+        if bloodbank_details:
+            current_packets = bloodbank_details['TOTAL_PACKETS']
+
+            # Check if enough packets are available
+            if current_packets >= requested_packets:
+                # Deduct the packets
+                new_packets = current_packets - requested_packets
+                cur.execute("UPDATE BLOODBANK SET TOTAL_PACKETS = %s WHERE B_GROUP = %s", (new_packets, blood_group))
+
+
+                cur.execute("UPDATE CONTACT SET STATUS =%s WHERE CONTACT_ID = %s", ('true',contact_id,))
+                # Commit the transaction
+                mysql.connection.commit()
+
+                flash('Blood request accepted and packets deducted from the blood bank.', 'success')
+            else:
+                flash('Not enough blood packets available.', 'danger')
+        else:
+            flash('Blood group not found in blood bank.', 'danger')
+    else:
+        flash('Blood request not found.', 'danger')
+
+    cur.close()
+    return redirect(url_for('acceptlogs'))
+
+
+
+
+
+
+@app.route('/acceptlogs')
 @is_logged_in
-def decline():
+def acceptlogs():
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT * FROM contact WHERE status=%s", ('true',))
+    logs = cur.fetchall()
+
+    if result>0:
+        return render_template('acceptrequests.html',logs=logs)
+    else:
+        flash('No Accept Requests')
+        return render_template('acceptrequests.html',logs=logs)
+    #close connection
+    cur.close()
+
+
+
+
+
+
+@app.route('/notifications/decline/<int:contact_id>', methods=['GET', 'POST'])
+@is_logged_in
+def decline(contact_id):
     msg = 'Request Declined'
     flash(msg,'danger')
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM CONTACT WHERE CONTACT_ID = %s", (contact_id,))
+    # Commit the transaction
+    mysql.connection.commit()
     return redirect(url_for('notifications'))
 
 if __name__ == '__main__':

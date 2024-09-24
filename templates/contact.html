@@ -2,15 +2,27 @@
 
 {% block body %}
   <div class="jumbotron text-centre" style="background-color:#f7f7f7;">
-    <h1> Contact us </h1>
+    <h1> Request Blood </h1>
     <p>Contact for blood inquiries. Our 24x7 operated system understands emergencies.</p>
     <p> </p>
     <hr class="my-4">
   <form method="post">
+
+
     <div class="form-group">
       <label>Blood Group</label>
-      <input type="text" name="bgroup" class="form-control" placeholder="Blood Packets" value="{{request.form.bgroup}}">
+      <select name="bgroup" class="form-control">
+        <option value="A+" {% if request.form.bgroup == 'A+' %}selected{% endif %}>A+</option>
+        <option value="A-" {% if request.form.bgroup == 'A-' %}selected{% endif %}>A-</option>
+        <option value="B+" {% if request.form.bgroup == 'B+' %}selected{% endif %}>B+</option>
+        <option value="B-" {% if request.form.bgroup == 'B-' %}selected{% endif %}>B-</option>
+        <option value="AB+" {% if request.form.bgroup == 'AB+' %}selected{% endif %}>AB+</option>
+        <option value="AB-" {% if request.form.bgroup == 'AB-' %}selected{% endif %}>AB-</option>
+        <option value="O+" {% if request.form.bgroup == 'O+' %}selected{% endif %}>O+</option>
+        <option value="O-" {% if request.form.bgroup == 'O-' %}selected{% endif %}>O-</option>
+      </select>
     </div>
+
     <div class="form-group">
       <label>Number of Packets (units)</label>
       <input type="number" name="bpackets" class="form-control" placeholder="Blood Packets" value="{{request.form.bpackets}}">

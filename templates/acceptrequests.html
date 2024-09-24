@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="jumbotron"style="background-color:#f7f7f7;">
+  <h1>ACCEPTED REQUESTS</h1>
+  <hr class="my-4">
+  <table class="table table-striped">
+    <tr>
+      <th>Contact ID</th>
+      <th>Blood Group</th>
+      <th>Packets</th>
+      <th>Name</th>
+      <th>Address</th>
+    </tr>
+    {% for log in logs %}
+      <tr>
+        <td>{{log.CONTACT_ID}}</td>
+        <td>{{log.B_GROUP}}</td>
+        <td>{{log.C_PACKETS}}</td>
+        <td>{{log.F_NAME}}</td>
+        <td>{{log.ADRESS}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
