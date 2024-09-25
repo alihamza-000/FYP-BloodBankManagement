@@ -51,21 +51,30 @@ USE bloodbank;
 ```
 
 ## Snapshots
+
 ### Home Page
-![](Screenshots/Home Page.png)
+![Home Page](Screenshots/Home%20Page.png)
+
 ### Register
-![](Screenshots/Register.png)
+![Register](Screenshots/Register.png)
+
 ### Login
-![](Screenshots/Login.png)
+![Login](Screenshots/Login.png)
+
 ### Dashboard
-![](Screenshots/Dashboard Page.png)
+![Dashboard](Screenshots/Dashboard%20Page.png)
+
 ### Add Donor
-![](Screenshots/Blood Donate Page.png)
+![Add Donor](Screenshots/Blood%20Donate%20Page.png)
+
 ### Donor Logs
-![](Screenshots/Donors List Page.png)
+![Donor Logs](Screenshots/Donors%20List%20Page.png)
+
 ### Request Blood
-![](Screenshots/Request Blood.png)
+![Request Blood](Screenshots/Request%20Blood.png)
+
 ### Blood Requests
-![](Screenshots/Blood Request Page.png)
+![Blood Requests](Screenshots/Blood%20Request%20Page.png)
+
 ### Accepted Requests
-![](Screenshots/Accepted Requests Page.png)
+![Accepted Requests](Screenshots/Accepted%20Requests%20Page.png)
