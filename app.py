@@ -5,10 +5,8 @@ from passlib.hash import sha256_crypt
 import random
 from functools import wraps
 
-
 app = Flask(__name__)
 app.secret_key='some secret key'
-
 
 #Config MySQL
 app.config['MYSQL_HOST']='localhost'

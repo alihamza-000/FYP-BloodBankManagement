@@ -31,6 +31,12 @@ Once this is done stop and start the mysql server:
 $  sudo service mysql stop
 $  sudo service mysql start
 ```
+
+
+###Impot Dump
+```
+import the Dump files(.sql) in Dump folder
+```
 ### View all databases:
 ```
 SHOW DATABASES;
@@ -46,20 +52,20 @@ USE bloodbank;
 
 ## Snapshots
 ### Home Page
-![](snapshots/home.png)
-### Contact Us
-![](snapshots/contact.png)
+![](Screenshots/Home Page.png)
 ### Register
-![](snapshots/register.png)
+![](Screenshots/Register.png)
 ### Login
-![](snapshots/login.png)
+![](Screenshots/Login.png)
 ### Dashboard
-![](snapshots/dashboard.png)
+![](Screenshots/Dashboard Page.png)
 ### Add Donor
-![](snapshots/donate.png)
+![](Screenshots/Blood Donate Page.png)
 ### Donor Logs
-![](snapshots/logs.png)
-### Donor Blood Details
-![](snapshots/details.png)
+![](Screenshots/Donors List Page.png)
+### Request Blood
+![](Screenshots/Request Blood.png)
 ### Blood Requests
-![](snapshots/requests.png)
+![](Screenshots/Blood Request Page.png)
+### Accepted Requests
+![](Screenshots/Accepted Requests Page.png)
