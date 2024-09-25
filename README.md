@@ -68,7 +68,7 @@ USE bloodbank;
 ![Add Donor](Screenshots/Blood%20Donate%20Page.png)
 
 ### Donor Logs
-![Donor Logs](Screenshots/Donors%20List%20Page.png)
+![Donor Logs](Screenshots/Donors%20List%20page.png)
 
 ### Request Blood
 ![Request Blood](Screenshots/Request%20Blood.png)
@@ -77,4 +77,4 @@ USE bloodbank;
 ![Blood Requests](Screenshots/Blood%20Request%20Page.png)
 
 ### Accepted Requests
-![Accepted Requests](Screenshots/Accepted%20Requests%20Page.png)
+![Accepted Requests](Screenshots/Accepted%20Requests%20page.png)
